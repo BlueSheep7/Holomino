@@ -6,12 +6,12 @@
 -- ask for permission
 -- final score animation
 -- test on 4K monitor
--- more customizable tile textures
+-- Custom texture packs
 -- random voice sfx on volume change
--- new background / permission
--- high gravity lag bug
 
 -- Future Features:
+-- 1v1 hololive talents. record their actual pieces and movements
+-- Gatcha mechanics. win hololive talent pieces
 -- Shaders
 -- full clear detection
 -- auto-place time meter display?
@@ -58,23 +58,13 @@ tetris.side_move_delay = 1/5
 tetris.side_move_repeat_delay = 1/20
 tetris.down_move_delay = 1/20
 tetris.block_choice = {"I", "J", "L", "O", "S", "T", "Z"}
-tetris.who_choice = {I = "gura_tile", J = "ina_tile", L = "coco_tile", O = "akai_tile", S = "amelia_tile", T = "suisei_tile", Z = "ayame_tile", F = "lol"}
+-- tetris.who_choice = {I = "gura_tile", J = "ina_tile", L = "coco_tile", O = "akai_tile", S = "amelia_tile", T = "suisei_tile", Z = "ayame_tile", F = "lol"}
+tetris.who_choice = {I = "trident", J = "ina_tile", L = "coco_tile", O = "amelia", S = "amelia_tile", T = "suisei_tile", Z = "default", F = "lol"}
 tetris.q_length = math.max(#tetris.block_choice - 2, 1)
 tetris.lock_delay = 0.5
 tetris.lock_max_moves = 15
 tetris.line_clear_delay = 0.3
 
-tetris.backgrounds = {
-{img = "suisei_tobacco.jpg", artist = "@laxyiii", link = "https://twitter.com/laxyiii/status/1271059561986904069", anchor = "left"},
-{img = "Hololive_FPS.png", artist = "Ruipi", link = "https://www.pixiv.net/en/artworks/84818998", anchor = "left"},
-{img = "gura_cooking.jpg", artist = "@ETTA03135813", link = "https://twitter.com/ETTA03135813/status/1343513759646588933", anchor = "right"},
-{img = "EN_L4D.jpg", artist = "@ETTA03135813", link = "https://twitter.com/ETTA03135813/status/1343513759646588933", anchor = "left"},
-{img = "suisei_singing.png", artist = "@monochrome_shio", link = "https://twitter.com/monochrome_shio/status/1263079159795838982", anchor = "left"},
-{img = "ina_giant.jpg", artist = "@Anonamos_701", link = "https://twitter.com/Anonamos_701/status/1329892272234704898", anchor = "left"},
-{img = "aqua_ark.jpg", artist = "@NAMCOOo", link = "https://twitter.com/namcooo/status/1245687872973242368", anchor = "right"},
-{img = "miko_ark.jpg", artist = "@NAMCOOo", link = "https://twitter.com/namcooo/status/1245687872973242368", anchor = "left"},
-{img = "aki_ark.jpg", artist = "@NAMCOOo", link = "https://twitter.com/namcooo/status/1245687872973242368", anchor = "right"},
-}
 
 -- Wall Kick Checks --
 tetris.kick_checks = {}
@@ -204,12 +194,12 @@ function tetris.prepare()
 	
 	tetris.piece_dust:reset()
 	
-	if tetris.background_img then
-		tetris.background_img = nil
+	if background.image then
+		background.image = nil
 		collectgarbage()
 	end
-	tetris.background = math.random(1, #tetris.backgrounds)
-	tetris.background_img = love.graphics.newImage("backgrounds/"..tetris.backgrounds[tetris.background].img)
+	background.id = math.random(1, #background.backgrounds)
+	background.image = love.graphics.newImage("backgrounds/"..background.backgrounds[background.id].img)
 
 	ui.element["start_btn"].title = {"RESUME", "続ける"}
 	
@@ -285,22 +275,12 @@ function tetris.draw(this)
 		return
 	end
 	
-	-- background --
-	love.graphics.origin()
-	love.graphics.setColor(0.5, 0.5, 0.5)
-	local scale = math.max(love.graphics.getHeight() / tetris.background_img:getHeight(), love.graphics.getWidth() / tetris.background_img:getWidth())
-	if tetris.backgrounds[tetris.background].anchor == "left" then
-		love.graphics.draw(tetris.background_img, 0, 0, 0, scale, scale)
-	elseif tetris.backgrounds[tetris.background].anchor == "right" then
-		love.graphics.draw(tetris.background_img, love.graphics.getWidth(), 0, 0, scale, scale, tetris.background_img:getWidth(), 0)
-	end
-	
 	-- Game --
 	love.graphics.origin()
 	love.graphics.translate(tetris.getCamX(), tetris.getCamY())
 	love.graphics.scale(tetris.getScale())
 	
-	love.graphics.setColor(0, 0, 0, 0.8)
+	love.graphics.setColor(0, 0, 0, 0.9)
 	love.graphics.rectangle("fill", -5 * tetris.tile_w, 0, tetris.grid_w * tetris.tile_w, tetris.grid_draw_h * tetris.tile_w)
 	
 	-- New Grid --
@@ -328,26 +308,13 @@ function tetris.draw(this)
 				
 				love.graphics.setColor(1, 1, 1)
 				
-				if img.shape[tetris.grid[x][y].block_type][tetris.grid[x][y].who] and tetris.block_info[tetris.grid[x][y].block_type].quad[tetris.grid[x][y].tile] then
-					-- love.graphics.draw(img.shape[tetris.grid[x][y].block_type][tetris.grid[x][y].who], tetris.block_info[tetris.grid[x][y].block_type].quad[tetris.grid[x][y].tile],
-					-- (x) * tetris.tile_w + tetris.tile_w/2, (tetris.grid_draw_h - y - 1) * tetris.tile_w + tetris.tile_w/2, tetris.grid[x][y].r / 4 * math.pi * 2, 1, 1, tetris.tile_w/2, tetris.tile_w/2)
-					love.graphics.draw(img.shape[tetris.grid[x][y].block_type][tetris.grid[x][y].who], tetris.block_info[tetris.grid[x][y].block_type].quad[1],
-					(x) * tetris.tile_w + tetris.tile_w/2, (tetris.grid_draw_h - y - 1) * tetris.tile_w + tetris.tile_w/2, 0, 1, 1, tetris.tile_w/2, tetris.tile_w/2)
-				else
-					love.graphics.rectangle("fill", (x) * tetris.tile_w, (tetris.grid_draw_h - y - 1) * tetris.tile_w, tetris.tile_w, tetris.tile_w)
-				end
+				tetris.drawTile(tetris.grid[x][y].block_type, tetris.grid[x][y].who, tetris.grid[x][y].r, x, tetris.grid_draw_h - y - 1, tetris.grid[x][y].tile)
 				
+				-- line clear animation --
 				if tetris.line_clear_table[y] then
 					love.graphics.setColor(ui.btn_fade_r2, ui.btn_fade_g2, ui.btn_fade_b2, 1 - tetris.line_clear_tick / tetris.line_clear_delay)
 					love.graphics.rectangle("fill", (x) * tetris.tile_w, (tetris.grid_draw_h - y - 1) * tetris.tile_w, tetris.tile_w, tetris.tile_w)
 				end
-					
-				
-				-- if settings.show_grid then
-					-- love.graphics.setColor(0, 0, 0)
-					-- love.graphics.setLineWidth(2)
-					-- love.graphics.rectangle("line", (x) * tetris.tile_w, (tetris.grid_draw_h - y - 1) * tetris.tile_w, tetris.tile_w, tetris.tile_w)
-				-- end
 				
 			end
 			-- love.graphics.setColor(1, 1, 1)
@@ -426,14 +393,15 @@ function tetris.update(dt)
 	if ui.menu_open ~= "game" and ui.menu_open ~= "gameover" then
 		return
 	end
-	if ui.counting_down then
-		return
-	end
 	
 	-- particles --
 	if settings.show_particles then
 		tetris.piece_dust:update(dt)
 		tetris.line_clear_dust:update(dt)
+	end
+	
+	if ui.counting_down then
+		return
 	end
 	
 	-- next up animation --
@@ -484,6 +452,9 @@ function tetris.update(dt)
 			
 			tetris.line_clear_table = {}
 			
+			tetris.soundEffect("line_clear")
+			tetris.pointSound(tetris.last_piece_who)
+			
 		end
 		
 		return
@@ -514,7 +485,13 @@ function tetris.update(dt)
 			
 			if love.keyboard.isDown(settings.key_down) or joy.holding_down then
 				tetris.score = tetris.score + 1
+				tetris.soundEffect("down")
 			end
+			
+		else
+			
+			tetris.gravity_tick = 0
+			break
 			
 		end
 		
@@ -539,8 +516,7 @@ function tetris.update(dt)
 			if tetris.isValidSpace(tetris.piece_type, tetris.piece_r, tetris.piece_x - 1, tetris.piece_y) then
 				tetris.piece_x = tetris.piece_x - 1
 				
-				-- sound.tone_high:stop()
-				-- sound.tone_high:play()
+				tetris.soundEffect("move_repeat")
 				
 				tetris.calculateGhost()
 				
@@ -565,8 +541,7 @@ function tetris.update(dt)
 			if tetris.isValidSpace(tetris.piece_type, tetris.piece_r, tetris.piece_x + 1, tetris.piece_y) then
 				tetris.piece_x = tetris.piece_x + 1
 				
-				-- sound.tone_high:stop()
-				-- sound.tone_high:play()
+				tetris.soundEffect("move_repeat")
 				
 				tetris.calculateGhost()
 				
@@ -603,8 +578,7 @@ function tetris.keypressed(key)
 		if tetris.isValidSpace(tetris.piece_type, tetris.piece_r, tetris.piece_x - 1, tetris.piece_y) then
 			tetris.piece_x = tetris.piece_x - 1
 			
-			sound.effects.tone_high:stop()
-			sound.effects.tone_high:play()
+			tetris.soundEffect("move")
 			
 			tetris.calculateGhost()
 			
@@ -624,8 +598,7 @@ function tetris.keypressed(key)
 		if tetris.isValidSpace(tetris.piece_type, tetris.piece_r, tetris.piece_x + 1, tetris.piece_y) then
 			tetris.piece_x = tetris.piece_x + 1
 			
-			sound.effects.tone_high:stop()
-			sound.effects.tone_high:play()
+			tetris.soundEffect("move")
 			
 			tetris.calculateGhost()
 			
@@ -655,8 +628,7 @@ function tetris.keypressed(key)
 					tetris.piece_y = tetris.piece_y + this[2]
 					tetris.calculateGhost()
 					
-					sound.effects.tone_low:stop()
-					sound.effects.tone_low:play()
+					tetris.soundEffect("turn_right")
 					
 					if tetris.lock_moves < tetris.lock_max_moves then
 						tetris.lock_tick = 0
@@ -675,8 +647,7 @@ function tetris.keypressed(key)
 				tetris.piece_y = tetris.piece_y
 				tetris.calculateGhost()
 				
-				sound.effects.tone_low:stop()
-				sound.effects.tone_low:play()
+				tetris.soundEffect("turn_right")
 				
 				if tetris.lock_moves < tetris.lock_max_moves then
 					tetris.lock_tick = 0
@@ -704,8 +675,7 @@ function tetris.keypressed(key)
 					tetris.piece_y = tetris.piece_y + this[2]
 					tetris.calculateGhost()
 					
-					sound.effects.tone_low:stop()
-					sound.effects.tone_low:play()
+					tetris.soundEffect("turn_left")
 					
 					if tetris.lock_moves < tetris.lock_max_moves then
 						tetris.lock_tick = 0
@@ -724,8 +694,7 @@ function tetris.keypressed(key)
 				tetris.piece_y = tetris.piece_y
 				tetris.calculateGhost()
 				
-				sound.effects.tone_low:stop()
-				sound.effects.tone_low:play()
+				tetris.soundEffect("turn_left")
 				
 				if tetris.lock_moves < tetris.lock_max_moves then
 					tetris.lock_tick = 0
@@ -750,8 +719,7 @@ function tetris.keypressed(key)
 			tetris.piece_y = tetris.piece_y
 			tetris.calculateGhost()
 			
-			sound.effects.tone_low:stop()
-			sound.effects.tone_low:play()
+			tetris.soundEffect("flip")
 			
 			if tetris.lock_moves < tetris.lock_max_moves then
 				tetris.lock_tick = 0
@@ -813,6 +781,8 @@ function tetris.keypressed(key)
 			tetris.piece_reset()
 			tetris.holded = true
 			
+			tetris.soundEffect("hold")
+			
 		end
 		
 	end
@@ -820,32 +790,31 @@ function tetris.keypressed(key)
 end
 
 
-function tetris.drawPiece(piece_type, piece_who, piece_r, piece_x, piece_y)
+function tetris.drawTile(block_type, who, rot, x, y, tile)
 	
-	-- local r, g, b, a = love.graphics.getColor()
+	if img.shape[block_type][who] then
+		if string.sub(who, #who - #"_tile" + 1) == "_tile" then
+			love.graphics.draw(img.shape[block_type][who],(x) * tetris.tile_w + tetris.tile_w/2, (y) * tetris.tile_w + tetris.tile_w/2, 0,
+				tetris.tile_w/img.shape[block_type][who]:getWidth(), tetris.tile_w/img.shape[block_type][who]:getHeight(), img.shape[block_type][who]:getWidth()/2, img.shape[block_type][who]:getHeight()/2)
+		else
+			love.graphics.draw(img.shape[block_type][who], tetris.block_info[block_type].quad[tile],
+				(x) * tetris.tile_w + tetris.tile_w/2, (y) * tetris.tile_w + tetris.tile_w/2, rot / 4 * math.pi * 2, 1, 1, tetris.tile_w/2, tetris.tile_w/2)
+		end
+	else
+		-- default colour
+		love.graphics.setColor(1, 1, 1)
+		love.graphics.rectangle("fill", (x) * tetris.tile_w, (y) * tetris.tile_w, tetris.tile_w, tetris.tile_w)
+	end
+	
+end
+
+function tetris.drawPiece(piece_type, piece_who, piece_r, piece_x, piece_y)
 	
 	for x = 0, tetris.block_info[piece_type].w-1 do
 		for y = 0, tetris.block_info[piece_type].w-1 do
 			if tetris.block[piece_type][piece_r][x][y] > 0 then
 				
-				if img.shape[piece_type][piece_who] and tetris.block_info[piece_type].quad[tetris.block[piece_type][piece_r][x][y]] then
-					-- love.graphics.draw(img.shape[piece_type][piece_who], tetris.block_info[piece_type].quad[tetris.block[piece_type][piece_r][x][y]],
-						-- (piece_x + x) * tetris.tile_w + tetris.tile_w/2, (piece_y + y) * tetris.tile_w + tetris.tile_w/2, piece_r / 4 * math.pi * 2, 1, 1, tetris.tile_w/2, tetris.tile_w/2)
-					love.graphics.draw(img.shape[piece_type][piece_who], tetris.block_info[piece_type].quad[1],
-						(piece_x + x) * tetris.tile_w + tetris.tile_w/2, (piece_y + y) * tetris.tile_w + tetris.tile_w/2, 0, 1, 1, tetris.tile_w/2, tetris.tile_w/2)
-				
-				else
-					love.graphics.rectangle("fill", (piece_x + x) * tetris.tile_w, (piece_y + y) * tetris.tile_w, tetris.tile_w, tetris.tile_w)
-				
-				end
-				
-				-- Black Grid --
-				-- if settings.show_grid then
-					-- love.graphics.setColor(0, 0, 0)
-					-- love.graphics.setLineWidth(2)
-					-- love.graphics.rectangle("line", (piece_x + x) * tetris.tile_w, (piece_y + y) * tetris.tile_w, tetris.tile_w, tetris.tile_w)
-					-- love.graphics.setColor(r, g, b, a)
-				-- end
+				tetris.drawTile(piece_type, piece_who, piece_r, piece_x + x, piece_y + y, tetris.block[piece_type][piece_r][x][y])
 				
 			end
 		end
@@ -1017,11 +986,8 @@ function tetris.placeBlock(piece_type, piece_r, piece_x, piece_y)
 	end
 	
 	-- sounds --
-	if cleared_lines > 0 then
-		tetris.pointSound(tetris.piece_who)
-	end
-	sound.effects.thud:stop()
-	sound.effects.thud:play()
+	tetris.last_piece_who = tetris.piece_who
+	tetris.soundEffect("drop")
 	
 	-- Reset Piece --
 	tetris.piece_type, tetris.piece_who = tetris.nextBlock()
@@ -1042,10 +1008,58 @@ end
 
 function tetris.pointSound(who)
 	
+	if string.sub(who, #who - #"_tile" + 1) == "_tile" then
+		who = string.sub(who, 1, #who - #"_tile")
+	end
+	
 	if sound.voice[who] and sound.voice[who].point then
 		sound.voice[who].point:stop()
 		sound.voice[who].point:play()
 	else
+		sound.effects.explode:stop()
+		sound.effects.explode:play()
+	end
+	
+end
+
+function tetris.soundEffect(effect)
+	
+	if effect == "move" then
+		sound.effects.hat:stop()
+		sound.effects.hat:play()
+		
+	elseif effect == "move_repeat" then
+		-- sound.effects.snare_small:stop()
+		-- sound.effects.snare_small:play()
+		
+	elseif effect == "down" then
+		sound.effects.snare_small:stop()
+		sound.effects.snare_small:play()
+		
+	elseif effect == "turn_right" then
+		sound.effects.snare_big:stop()
+		sound.effects.snare_big:play()
+		
+	elseif effect == "turn_left" then
+		sound.effects.snare_big:stop()
+		sound.effects.snare_big:play()
+		
+	elseif effect == "flip" then
+		sound.effects.tom_1:stop()
+		sound.effects.tom_1:play()
+		
+	elseif effect == "drop" then
+		sound.effects.kick:stop()
+		sound.effects.kick:play()
+		
+	elseif effect == "line_clear" then
+		-- sound.effects.explode:stop()
+		-- sound.effects.explode:play()
+		
+	elseif effect == "hold" then
+		sound.effects.crash:stop()
+		sound.effects.crash:play()
+		
 	end
 	
 end

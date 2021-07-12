@@ -197,13 +197,13 @@ function ui.draw(layer)
 		love.graphics.setColor(1, 1, 1)
 		love.graphics.print(text, 3, love.graphics.getHeight() - ui.font:getHeight()*0.9 - 4, 0, 0.9, 0.9)
 		
-		if love.mouse.getX() < ui.font:getWidth(text)*0.9 + ui.font:getWidth(tetris.backgrounds[tetris.background].artist)*0.9 and love.mouse.getY() > love.graphics.getHeight() - ui.font:getHeight()*0.9 - 4 then
+		if love.mouse.getX() < ui.font:getWidth(text)*0.9 + ui.font:getWidth(background.backgrounds[background.id].artist)*0.9 and love.mouse.getY() > love.graphics.getHeight() - ui.font:getHeight()*0.9 - 4 then
 			love.graphics.setColor(1, 1, 1)
 		else
 			love.graphics.setColor(ui.highlight_r, ui.highlight_g, ui.highlight_b)
 		end
 		
-		love.graphics.print(tetris.backgrounds[tetris.background].artist, 3 + ui.font:getWidth(text)*0.9, love.graphics.getHeight() - ui.font:getHeight()*0.9 - 4, 0, 0.9, 0.9)
+		love.graphics.print(background.backgrounds[background.id].artist, 3 + ui.font:getWidth(text)*0.9, love.graphics.getHeight() - ui.font:getHeight()*0.9 - 4, 0, 0.9, 0.9)
 		
 		
 	elseif ui.menu_open == "main" then
@@ -510,12 +510,12 @@ function ui.mousepressed(mx, my, button)
 			-- 	end
 			-- end
 			
-			local text = "Background Image / 背景画像: "..tetris.backgrounds[tetris.background].artist
+			local text = "Background Image / 背景画像: "..background.backgrounds[background.id].artist
 			if love.mouse.getX() < ui.font:getWidth(text)*0.9 and love.mouse.getY() > love.graphics.getHeight() - ui.font:getHeight()*0.9 - 4 then
 				if ui.menu_open == "game" then
 					ui.openMenu("pause", false)
 				end
-				ui.openLink(tetris.backgrounds[tetris.background].link)
+				ui.openLink(background.backgrounds[background.id].link)
 			end
 			
 		elseif ui.menu_open == "splash" then
